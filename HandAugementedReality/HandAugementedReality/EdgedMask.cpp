@@ -6,20 +6,19 @@ EdgedMask::EdgedMask()
 	return;
 }
 
-EdgedMask::EdgedMask(const Mat& frame, const vector<Point>& points)
+EdgedMask::EdgedMask(const Mat& frame, const ColorProfile& color_profile)
 {
-	create_edges(frame, points);
+	create_edges(frame, color_profile);
 }
 
-void EdgedMask::create_edges(const Mat& frame, const vector<Point>& points)
+void EdgedMask::create_edges(const Mat& frame, const ColorProfile& color_profile)
 {
 	Mat mask(frame.size(), CV_8UC1);
 
-	for (const Point& p : points) {
+	for (int color_value : color_profile.color_values) {
 		Mat tmp;
-		int thresh = (int)frame.at<uchar>(p.y, p.x);
-
-		threshold(frame, tmp, thresh, 255, THRESH_BINARY);
+		
+		threshold(frame, tmp, color_value, 255, THRESH_BINARY);
 		mask += tmp;
 	}
 
@@ -28,6 +27,7 @@ void EdgedMask::create_edges(const Mat& frame, const vector<Point>& points)
 	Mat structElem = getStructuringElement(MorphShapes::MORPH_RECT, Size(7, 7));
 	dilate(mask, mask, structElem);
 	erode(mask, mask, structElem);
+	imshow("threshold", mask);
 	Canny(mask, mask, 80, 80 * 2, 3);
 
 	this->edges = mask;
