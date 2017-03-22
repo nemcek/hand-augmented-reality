@@ -13,26 +13,25 @@ double distance_euc(Point a, Point b) {
 
 void mouse_call_back(int event, int x, int y, int flags, void* userdata) {
 	if (event == EVENT_LBUTTONDOWN) {
-		Mat* img = (Mat*)userdata;
 		cout << "[" << x << ", " << y << "]" << endl;
 	}
 }
 
 int main() {
 	Mat template_img = imread("C:\\dev\\hand_object_aug_reality\\data\\template.jpg");
-	Mat grayscale;
-	
+	imshow("aug hand", template_img);
+	setMouseCallback("aug hand", mouse_call_back, NULL);
 	vector<Point> points;
-	points.push_back(Point(143, 138));
-	points.push_back(Point(210, 84));
-	points.push_back(Point(277, 67));
-	points.push_back(Point(340, 100));
-	points.push_back(Point(468, 283));
-	points.push_back(Point(193, 286));
-	points.push_back(Point(300, 262));
-	points.push_back(Point(332, 387));
-	points.push_back(Point(210, 398));
-	points.push_back(Point(261, 322));
+	points.push_back(Point(199, 281));
+	points.push_back(Point(302, 115));
+	points.push_back(Point(356, 91));
+	points.push_back(Point(409, 111));
+	points.push_back(Point(462, 169));
+	points.push_back(Point(274, 327));
+	points.push_back(Point(326, 239));
+	points.push_back(Point(423, 271));
+	points.push_back(Point(405, 370));
+	points.push_back(Point(371, 303));
 
 	VideoCapture webcam;
 

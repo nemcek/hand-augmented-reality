@@ -9,7 +9,8 @@ ImageProcessor::ImageProcessor(const Mat& template_img, const vector<Point>& poi
 void ImageProcessor::process(const Mat & frame)
 {
 	this->result = frame.clone();
-	this->frame = frame.clone();
+	flip(this->result, this->result, 1);
+	this->frame = this->result.clone();
 
 	// convert to HSL color space
 	cvtColor(this->frame, this->frame, CV_RGB2HLS);

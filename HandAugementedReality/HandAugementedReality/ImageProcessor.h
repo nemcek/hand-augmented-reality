@@ -21,7 +21,7 @@ public:
 
 private:
 	bool is_initialized = false;
-	int color_feature_radius = 10;
+	int color_feature_radius = 7;
 	const vector<Point>& roi_points;
 	vector<InterestRegion> rois;
 	Mat frame;

@@ -34,6 +34,7 @@ void EdgedMask::create_edges(const Mat& frame, const ColorProfile& color_profile
 		inRange(frame, Scalar((int)color_feature.min_value[0], (int)color_feature.min_value[1], (int)color_feature.min_value[2]), 
 			Scalar((int)color_feature.max_value[0] + h, (int)color_feature.max_value[1] + h, (int)color_feature.max_value[2] +h), tmp);
 		mask += tmp;
+		//imshow(names[i++], tmp);
 	}
 
 	medianBlur(mask, mask, 7);
