@@ -2,6 +2,7 @@
 #include "Utils.h"
 #include "EdgedMask.h"
 #include "Hand.h"
+#include "ImageProcessor.h"
 
 using namespace cv;
 using namespace std;
@@ -39,46 +40,17 @@ int main() {
 		return 1;
 	}
 
-	bool initialized = false;
-	ColorProfile color_profile;
-	EdgedMask edged_mask;
-	int l = 0;
-	Mat dst = Mat::zeros(Size(640, 480), CV_8UC1);
-	vector<InterestRegion> interest_regions;
+	ImageProcessor image_proc = ImageProcessor(template_img, points);
 	for (;;) {
 		Mat img;
-		Mat orig;
 		webcam >> img;
-		orig = img.clone();
-		if (!initialized) {
-			img += template_img;
-			int r = 10;
-			int rect_width = 5;
-			for (int i = 0; i < points.size(); i++) {
-				rectangle(img, Point(points[i].x - r, points[i].y - r), Point(points[i].x + r, points[i].y + r), Scalar(255, 255, 255), 2, 2);
-			}
-		}
-		else {
-			cvtColor(orig, orig, CV_RGB2HLS);
-			blur(orig, orig, Size(3, 3));
-			edged_mask = EdgedMask(orig, color_profile);
-			imshow("edges", edged_mask.edges);
-			Hand hand(edged_mask);
-
-			img += hand.result;
-		}
+		image_proc.process(img);
 
 		if (waitKey(30) == 13) {
-			cvtColor(orig, orig, CV_RGB2HLS);
-
-			for (const Point& p : points) {
-				interest_regions.push_back(InterestRegion(orig, p, 10));
-			}
-			color_profile = ColorProfile(interest_regions);
-			initialized = true;
+			image_proc.init();
 		}
 
-		imshow("webcam", img);
+		imshow("aug hand", image_proc.result);
 	}
 
 	waitKey();
