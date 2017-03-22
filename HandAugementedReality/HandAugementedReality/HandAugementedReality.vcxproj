@@ -154,16 +154,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ColorFeature.cpp" />
     <ClCompile Include="ColorProfile.cpp" />
     <ClCompile Include="EdgedMask.cpp" />
     <ClCompile Include="Hand.cpp" />
+    <ClCompile Include="InterestRegion.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ColorFeature.h" />
     <ClInclude Include="ColorProfile.h" />
     <ClInclude Include="EdgedMask.h" />
     <ClInclude Include="Hand.h" />
+    <ClInclude Include="InterestRegion.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

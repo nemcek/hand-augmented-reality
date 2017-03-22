@@ -30,6 +30,12 @@
     <ClCompile Include="ColorProfile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="InterestRegion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ColorFeature.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EdgedMask.h">
@@ -42,6 +48,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ColorProfile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InterestRegion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorFeature.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
