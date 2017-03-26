@@ -27,8 +27,10 @@ private:
 	Mat frame;
 	const Mat& template_img;
 	ColorProfile color_profile;
+	Ptr<BackgroundSubtractorMOG2> backgroud_substractor;
 
 	void process_not_initialized();
 	void process_initialized();
+	void extract_foreground();
 };
 

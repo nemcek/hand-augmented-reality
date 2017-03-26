@@ -17,10 +17,10 @@ void mouse_call_back(int event, int x, int y, int flags, void* userdata) {
 	}
 }
 
-int main() {
+int main(int argc, char* argv[]) {
+
 	Mat template_img = imread("C:\\dev\\hand_object_aug_reality\\data\\template.jpg");
-	imshow("aug hand", template_img);
-	setMouseCallback("aug hand", mouse_call_back, NULL);
+
 	vector<Point> points;
 	points.push_back(Point(199, 281));
 	points.push_back(Point(302, 115));
