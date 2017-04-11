@@ -1,6 +1,7 @@
 #include "Hand.h"
 
 
+
 Hand::Hand(const EdgedMask & edged_mask)
 {
 	this->edged_mask = edged_mask;
@@ -9,8 +10,9 @@ Hand::Hand(const EdgedMask & edged_mask)
 
 	create_convex_hull(this->contours[this->largest_contour_idx]);
 	create_bounding_rect(this->convex_hull_points);
-	create_finger_tips(this->convex_hull_points_approxied);
 	create_defects(this->convex_hull_indices);
+	//create_finger_tips(this->convex_hull_points_approxied);
+	create_finger_tips(this->defects);
 	create_palm(this->defects_points);
 	draw();
 }
@@ -46,19 +48,35 @@ void Hand::create_convex_hull(const vector<Point>& contour)
 	approxPolyDP(this->convex_hull_points, this->convex_hull_points_approxied, 18, true);
 }
 
+void Hand::create_finger_tips(const vector<Vec4i>& defects) {
+	vector<Point> fingers = vector<Point>();
+
+	for (int i = 0; i < defects.size(); i++) {
+		// add also first start point
+		//if (i == 0) {
+			// start index
+			fingers.push_back(this->contours[this->largest_contour_idx][defects[i][0]]);
+		//}
+		// end index
+		fingers.push_back(this->contours[this->largest_contour_idx][defects[i][1]]);
+	}
+
+	create_finger_tips(fingers);
+}
+
 void Hand::create_finger_tips(const vector<Point>& points)
 {
 	for (int i = 0; i < points.size(); i++) {
 		// eliminate "finger points" that lay on the bottom of the bounding rect
-		if (points[i].y >= (this->bounding_rect.y + this->bounding_rect.height - 3)
-			&& points[i].y <= (this->bounding_rect.y + this->bounding_rect.height + 3))
+		if (points[i].y <= (this->bounding_rect.y + this->bounding_rect.height)
+			&& points[i].y >= (this->bounding_rect.y + this->bounding_rect.height - this->bounding_rect.height / 4))
 			continue;
 
 		bool has_near_neighbour = false;
 		for (int j = 0; j < this->finger_tips.size(); j++) {
 			Point a = points[i];
 			Point b = this->finger_tips[j];
-			if (Utils::euclidean_distance(a, b) < 10) {
+			if (Utils::euclidean_distance(a, b) < 20) {
 				has_near_neighbour = true;
 				break;
 			}
@@ -84,24 +102,53 @@ void Hand::create_defects(const vector<int>& points_indices)
 /// Eliminates defects points that are too close to each other
 void Hand::create_defects_points(const vector<Vec4i>& defects)
 {
+	vector<Vec4i> defs = vector<Vec4i>();
+
 	for (int i = 0; i < defects.size(); i++) {
+		Point start = this->contours[this->largest_contour_idx][defects[i][0]];
+		Point end = this->contours[this->largest_contour_idx][defects[i][1]];
+		Point farthest = this->contours[this->largest_contour_idx][defects[i][2]];
+		double angle = Utils::angle(start, farthest, end);
+		if (angle > 0 && angle < 80.0) {
+			//cout << "angle: " << angle << endl;
+			defs.push_back(defects[i]);
+		}
+	}
+
+	this->defects = defs;
+
+	for (int i = 0; i < defs.size(); i++) {
 		// eliminate defects that are too close to convex hull
-		if (defects[i][3] / 256.0 <= 30)
+		if (defs[i][3] / 256.0 <= 30)
 			continue;
+
+		bool is_near_to_finger_tip = false;
+		Point defect_point = this->contours[this->largest_contour_idx][defs[i][2]];
+		// eliminate defects that are too close to any finger tip
+		/*for (int j = 0; j < this->finger_tips.size(); j++) {
+			Point b = this->finger_tips[j];
+			if (Utils::euclidean_distance(defect_point, b) < 10) {
+				is_near_to_finger_tip = true;
+				break;
+			}
+		}
+
+		if (is_near_to_finger_tip)
+			continue;*/
 
 		bool has_near_neighbour = false;
 		for (int j = 0; j < this->defects_points.size(); j++) {
-			Point a = this->contours[this->largest_contour_idx][defects[i][2]];
 			Point b = defects_points[j];
-			double dist = Utils::euclidean_distance(a, b);
+			double dist = Utils::euclidean_distance(defect_point, b);
 			if (dist < 10) {
 				has_near_neighbour = true;
 				break;
 			}
 		}
 
-		if (!has_near_neighbour)
-			this->defects_points.push_back(contours[largest_contour_idx][defects[i][2]]);
+		if (!has_near_neighbour) {
+			this->defects_points.push_back(contours[largest_contour_idx][defs[i][2]]);
+		}
 	}
 }
 
@@ -119,24 +166,22 @@ void Hand::draw()
 	// contours
 	drawContours(this->result, contours, this->largest_contour_idx, Scalar(0, 0, 255), 2, 2, hierarchy);
 
-	// bounding rectangle
-	rectangle(this->result, this->bounding_rect, Scalar(255, 198, 75), 3);
-
 	vector<vector<Point>> tmp_convex_hull;
 	tmp_convex_hull.push_back(this->convex_hull_points_approxied);	// draw coontours expects two-dimensional array
 	drawContours(this->result, tmp_convex_hull, 0, Scalar(0, 255, 0), 2, 2);
 
 	// finger tips
-	for (int i = 0; i < this->finger_tips.size(); i++)
+	for (int i = 0; i < this->finger_tips.size(); i++) {
 		circle(this->result, this->finger_tips[i], 8, Scalar(0, 0, 255), 5);
+		stringstream ss;
+		ss << i;
+
+		putText(this->result, ss.str(), this->finger_tips[i], FONT_HERSHEY_SIMPLEX, 1, Scalar(255, 0, 0), 2, 2);
+	}
 
 	// defect points
 	for (int i = 0; i < this->defects_points.size(); i++)
-		circle(this->result, this->contours[this->largest_contour_idx][this->defects[i][2]], 8, Scalar(0, 255, 255), 5);
-
-	// palm
-	ellipse(this->result, this->palm, Scalar(128, 0, 128), 4, 2);
-	circle(this->result, this->palm.center, 4, Scalar(128, 0, 128), 4, 2);
+		circle(this->result, this->defects_points[i], 8, Scalar(255, 0, 0), 5);
 }
 
 Hand::~Hand()

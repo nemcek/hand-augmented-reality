@@ -13,7 +13,7 @@ EdgedMask::EdgedMask(const Mat& frame, const ColorProfile& color_profile)
 
 void EdgedMask::create_edges(const Mat& frame, const ColorProfile& color_profile)
 {
-	Mat mask = Mat::ones(frame.size(), CV_8UC1);
+	mask = Mat::ones(frame.size(), CV_8UC1);
 	vector<std::string> names = vector<std::string>();
 	int i = 0;
 	names.push_back(std::string("thresh 1"));
@@ -43,9 +43,7 @@ void EdgedMask::create_edges(const Mat& frame, const ColorProfile& color_profile
 	dilate(mask, mask, structElem);
 	erode(mask, mask, structElem);
 	imshow("threshold", mask);
-	Canny(mask, mask, 80, 80 * 2, 3);
-
-	this->edges = mask;
+	Canny(mask, this->edges, 80, 80 * 2, 3);
 }
 
 EdgedMask::~EdgedMask()

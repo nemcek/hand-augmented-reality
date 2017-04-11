@@ -157,6 +157,7 @@
     <ClCompile Include="ColorFeature.cpp" />
     <ClCompile Include="ColorProfile.cpp" />
     <ClCompile Include="EdgedMask.cpp" />
+    <ClCompile Include="Finger.cpp" />
     <ClCompile Include="Hand.cpp" />
     <ClCompile Include="ImageProcessor.cpp" />
     <ClCompile Include="InterestRegion.cpp" />
@@ -167,6 +168,7 @@
     <ClInclude Include="ColorFeature.h" />
     <ClInclude Include="ColorProfile.h" />
     <ClInclude Include="EdgedMask.h" />
+    <ClInclude Include="Finger.h" />
     <ClInclude Include="Hand.h" />
     <ClInclude Include="ImageProcessor.h" />
     <ClInclude Include="InterestRegion.h" />

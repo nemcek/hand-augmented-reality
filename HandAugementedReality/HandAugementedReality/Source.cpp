@@ -7,10 +7,6 @@
 using namespace cv;
 using namespace std;
 
-double distance_euc(Point a, Point b) {
-	return sqrt(pow((a.x - b.x), 2) + pow((a.y - b.y), 2));
-}
-
 void mouse_call_back(int event, int x, int y, int flags, void* userdata) {
 	if (event == EVENT_LBUTTONDOWN) {
 		cout << "[" << x << ", " << y << "]" << endl;
@@ -43,10 +39,19 @@ int main(int argc, char* argv[]) {
 	for (;;) {
 		Mat img;
 		webcam >> img;
+
+		if (img.empty()) {
+			break;
+		}
+
 		image_proc.process(img);
 
-		if (waitKey(30) == 13) {
+		int key = waitKey(30);
+		if (key == 13) {
 			image_proc.init();
+		}
+		else if (key == 114) {
+			image_proc.is_initialized = false;
 		}
 
 		imshow("aug hand", image_proc.result);

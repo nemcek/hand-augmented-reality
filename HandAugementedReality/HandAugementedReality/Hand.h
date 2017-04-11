@@ -32,6 +32,7 @@ private:
 	void create_bounding_rect(const vector<Point>& points);
 	void create_convex_hull(const vector<Point>& contour);
 	void create_finger_tips(const vector<Point>& points);
+	void create_finger_tips(const vector<Vec4i>& defects);
 	void create_defects(const vector<int>& points_indices);
 	void create_defects_points(const vector<Vec4i>& defects);
 	void create_palm(const vector<Point>& defects_points);

@@ -10,6 +10,7 @@ class EdgedMask
 {
 public:
 	Mat edges;
+	Mat mask;
 
 	EdgedMask();
 	EdgedMask(const Mat &frame, const ColorProfile& color_profile);
