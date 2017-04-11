@@ -161,6 +161,7 @@
     <ClCompile Include="Hand.cpp" />
     <ClCompile Include="ImageProcessor.cpp" />
     <ClCompile Include="InterestRegion.cpp" />
+    <ClCompile Include="Location.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
@@ -172,6 +173,7 @@
     <ClInclude Include="Hand.h" />
     <ClInclude Include="ImageProcessor.h" />
     <ClInclude Include="InterestRegion.h" />
+    <ClInclude Include="Location.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
