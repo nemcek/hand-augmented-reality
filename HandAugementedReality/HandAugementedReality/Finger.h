@@ -1,6 +1,7 @@
 #pragma once
 
 #include <opencv2\opencv.hpp>
+#include "Location.h"
 
 using namespace cv;
 using namespace std;
@@ -19,7 +20,7 @@ public:
 	Rect roi;
 	Mat roi_data;
 	FingerType type;
-	Point point;
+	Location location;
 
 	Finger();
 	Finger(const Point& finger_tip_point, FingerType type);

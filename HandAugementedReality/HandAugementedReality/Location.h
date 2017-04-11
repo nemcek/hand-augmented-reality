@@ -7,22 +7,24 @@
 using namespace std;
 using namespace cv;
 
+const int MAX_SIZE = 10;
+
 class Location
 {
 public:
 	Location();
+	Location(const Point & p);
 	void add(Point & p);
+	const Point & get();
 
 	~Location();
 
 private:
 	deque<Point> q;
 	Point avg;
-	const int MAX_SIZE = 10;
 
 	void calc_avg();
-	void push(Point & p);
+	void push(const Point & p);
 	void pop();
-	Point & get();
 };
 

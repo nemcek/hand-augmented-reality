@@ -63,7 +63,7 @@ void ImageProcessor::process_not_initialized()
 	int width, height;
 	width = height = 50;
 	for (int i = 0; i < this->fingers.size(); i++) {
-		Rect rect = Rect(Point(this->fingers[i].point.x - width / 2, this->fingers[i].point.y - height / 4), Size(width, height));
+		Rect rect = Rect(Point(this->fingers[i].location.get().x - width / 2, this->fingers[i].location.get().y - height / 4), Size(width, height));
 		rectangle(this->result, rect, Scalar(255, 0, 0), 2, 2);
 	}
 }
@@ -93,8 +93,8 @@ void ImageProcessor::process_initialized()
 	// template matching of fingers
 	for (Finger& finger : this->fingers) {
 		Mat tmp = Mat::zeros(finger.roi_data.size(), CV_8UC1);
-		Rect roi = Rect(Point(finger.point.x - (finger.point.x < 50 ? finger.point.x : 50), finger.point.y - (finger.point.y < 50 ? finger.point.y : 50)),
-			Point(finger.point.x + (finger.point.x + 50 > this->result.cols ? this->result.cols - finger.point.x : 50), finger.point.y + (finger.point.y + 50 > this->result.rows ? this->result.rows - finger.point.y : 50)));
+		Rect roi = Rect(Point(finger.location.get().x - (finger.location.get().x < 50 ? finger.location.get().x : 50), finger.location.get().y - (finger.location.get().y < 50 ? finger.location.get().y : 50)),
+			Point(finger.location.get().x + (finger.location.get().x + 50 > this->result.cols ? this->result.cols - finger.location.get().x : 50), finger.location.get().y + (finger.location.get().y + 50 > this->result.rows ? this->result.rows - finger.location.get().y : 50)));
 		matchTemplate(edged_mask.mask(roi), finger.roi_data, tmp, CV_TM_CCOEFF);
 		normalize(tmp, tmp, 0, 1, NORM_MINMAX, -1, Mat());
 
@@ -112,7 +112,7 @@ void ImageProcessor::process_initialized()
 		circle(this->result, Point(matchLoc.x + finger.roi_data.cols / 2, matchLoc.y + finger.roi_data.rows / 2), 5, Scalar::all(0), 2, 2, 0);
 
 		finger.roi = rect;
-		finger.point = Point(matchLoc.x + finger.roi_data.cols / 2, matchLoc.y + finger.roi_data.rows / 2);
+		finger.location.add(Point(matchLoc.x + finger.roi_data.cols / 2, matchLoc.y + finger.roi_data.rows / 2));
 	}
 	
 

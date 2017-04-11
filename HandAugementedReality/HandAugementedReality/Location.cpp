@@ -8,6 +8,12 @@ Location::Location()
 	this->avg = Point(0.0, 0.0);
 }
 
+Location::Location(const Point & p)
+{
+	this->q = deque<Point>();
+	push(p);
+}
+
 void Location::add(Point & p)
 {
 	if (Utils::euclidean_distance(this->avg, p) > 50)
@@ -25,7 +31,7 @@ void Location::calc_avg()
 	this->avg = Point(sum.x / q.size(), sum.y / q.size());
 }
 
-void Location::push(Point & p)
+void Location::push(const Point & p)
 {
 	this->q.push_back(p);
 	calc_avg();
@@ -36,7 +42,7 @@ void Location::pop()
 	this->q.pop_front();
 }
 
-Point & Location::get()
+const Point & Location::get()
 {
 	return this->avg;
 }

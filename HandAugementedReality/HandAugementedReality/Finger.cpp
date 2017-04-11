@@ -8,8 +8,8 @@ Finger::Finger()
 
 Finger::Finger(const Point& finger_tip_point, FingerType type)
 {
-	this->point = finger_tip_point;
-	this->roi = Rect(Point(point.x - width / 2, point.y - height / 4), Size(width, height));
+	this->location = Location(finger_tip_point);
+	this->roi = Rect(Point(location.get().x - width / 2, location.get().y - height / 4), Size(width, height));
 }
 
 void Finger::extract(const Mat & frame)
