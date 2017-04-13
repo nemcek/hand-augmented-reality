@@ -1,7 +1,8 @@
 #include "Hand.h"
 
 
-
+// haris detector
+// corner detektory
 Hand::Hand(const EdgedMask & edged_mask)
 {
 	this->edged_mask = edged_mask;
@@ -109,10 +110,10 @@ void Hand::create_defects_points(const vector<Vec4i>& defects)
 		Point end = this->contours[this->largest_contour_idx][defects[i][1]];
 		Point farthest = this->contours[this->largest_contour_idx][defects[i][2]];
 		double angle = Utils::angle(start, farthest, end);
-		if (angle > 0 && angle < 80.0) {
+		//if (angle > 0 && angle < 80.0) {
 			//cout << "angle: " << angle << endl;
 			defs.push_back(defects[i]);
-		}
+		//}
 	}
 
 	this->defects = defs;
@@ -154,9 +155,13 @@ void Hand::create_defects_points(const vector<Vec4i>& defects)
 
 void Hand::create_palm(const vector<Point>& defects_points)
 {
-	if (defects_points.size() > 4) {	// elipse needs at least 4 points
-		this->palm = fitEllipse(defects_points);
+	if (defects_points.size() >= 4) {
+		this->palm = minAreaRect(defects_points);
 	}
+
+	//if (defects_points.size() > 4) {	// elipse needs at least 4 points
+	//	this->palm = fitEllipse(defects_points);
+	//}
 }
 
 void Hand::draw()
@@ -182,6 +187,9 @@ void Hand::draw()
 	// defect points
 	for (int i = 0; i < this->defects_points.size(); i++)
 		circle(this->result, this->defects_points[i], 8, Scalar(255, 0, 0), 5);
+
+	ellipse(this->result, this->palm, Scalar(255, 0, 0), 2, 2);
+	circle(this->result, this->palm.center, 5, Scalar(255, 0, 0), 2, 2);
 }
 
 Hand::~Hand()

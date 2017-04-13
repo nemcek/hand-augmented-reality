@@ -8,6 +8,7 @@ using namespace std;
 using namespace cv;
 
 const int MAX_SIZE = 10;
+const bool USE_WIGHTED_MEAN = true;
 
 class Location
 {
@@ -24,6 +25,8 @@ private:
 	Point avg;
 
 	void calc_avg();
+	void calc_weighted_mean();
+	void calc_arithmetic_mean();
 	void push(const Point & p);
 	void pop();
 };

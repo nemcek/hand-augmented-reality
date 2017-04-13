@@ -1,10 +1,31 @@
 #include "ImageProcessor.h"
 
 
+vector<Point3d> points3d;
+
 ImageProcessor::ImageProcessor(const Mat& template_img, const vector<Point>& points) : template_img(template_img), roi_points(points)
 {
 	this->backgroud_substractor = createBackgroundSubtractorMOG2(500, 16, false);
 	this->fingers = vector<Finger>(5);
+	this->fingers[FingerType::THUMB] = Finger(Point2d(165.0f, 250.0f), FingerType::THUMB);
+	this->fingers[FingerType::INDEX] = Finger(Point2d(302.0f, 80.0f), FingerType::INDEX);
+	this->fingers[FingerType::MIDDLE] = Finger(Point2d(356.0f, 57.0f), FingerType::MIDDLE);
+	this->fingers[FingerType::RING] = Finger(Point2d(409.0f, 76.0f), FingerType::RING);
+	this->fingers[FingerType::PINKY] = Finger(Point2d(465.0f, 130.0f), FingerType::PINKY);
+
+	points3d = vector<Point3d>(5);
+	for (Finger & finger : this->fingers) {
+		double x = finger.location.get().x > 320.0f ? finger.location.get().x - 320.0f : -(320.0f - finger.location.get().x);
+		double y = finger.location.get().y > 240.0f ? finger.location.get().y - 240.0f : -(240.0f - finger.location.get().y);
+		points3d[finger.type] = Point3d(x, y, 0.0f);
+	}
+
+	points3d[FingerType::THUMB].z = 60.0f;			// thumb
+	points3d[FingerType::INDEX].z = 20.0f;		// index
+	points3d[FingerType::MIDDLE].z = 0.0f;			// middle
+	points3d[FingerType::RING].z = 20.0f;			// ring
+	points3d[FingerType::PINKY].z = 40.0f;		// pinkie
+
 }
 
 void ImageProcessor::process(const Mat & frame)
@@ -31,12 +52,6 @@ void ImageProcessor::init()
 	}
 
 	this->color_profile = ColorProfile(rois);
-	this->fingers[FingerType::THUMB] = Finger(Point2d(165.0f, 250.0f), FingerType::THUMB);
-	this->fingers[FingerType::INDEX] = Finger(Point2d(302.0f, 80.0f), FingerType::INDEX);
-	this->fingers[FingerType::MIDDLE] = Finger(Point2d(356.0f, 57.0f), FingerType::MIDDLE);
-	this->fingers[FingerType::RING] = Finger(Point2d(409.0f, 76.0f), FingerType::RING);
-	this->fingers[FingerType::PINKY] = Finger(Point2d(465.0f, 130.0f), FingerType::PINKY);
-
 	blur(this->frame, this->frame, Size(3, 3));
 	EdgedMask edged_mask(this->frame, color_profile);
 	Hand hand(edged_mask);
@@ -78,7 +93,7 @@ void ImageProcessor::extract_foreground()
 	findNonZero(foreground, nonzero_points);
 	Rect rect = boundingRect(nonzero_points);
 
-	imshow("FOREGROUND", foreground);
+	//imshow("FOREGROUND", foreground);
 	Mat tmp = Mat::zeros(this->frame.size(), CV_8UC3);
 	this->frame(rect).copyTo(tmp(rect));
 	this->frame = tmp;
@@ -113,16 +128,11 @@ void ImageProcessor::process_initialized()
 
 		finger.roi = rect;
 		finger.location.add(Point(matchLoc.x + finger.roi_data.cols / 2, matchLoc.y + finger.roi_data.rows / 2));
+		rectangle(this->result, roi, Scalar(0, 0, 255), 2, 2);
 	}
 	
 
-	vector<Point3d> points3d = vector<Point3d>();
-	points3d.push_back(Point3d(-155.0f, 10.0f, 60.0f));			// thumb
-	points3d.push_back(Point3d(-18.0f, -160.0f, 20.0f));		// index
-	points3d.push_back(Point3d(36.0f, -183.0, 0.0f));			// middle
-	points3d.push_back(Point3d(89.0f, -164.0f, 20.0f));			// ring
-	points3d.push_back(Point3d(145.0f, -110.0f, 40.0f));		// pinkie
-
+	
 	// Camera internals
 	double focal_length = this->result.cols;
 	Point2d center = cv::Point2d(this->result.cols / 2, this->result.rows / 2);
@@ -137,7 +147,7 @@ void ImageProcessor::process_initialized()
 	for (int i = 0; i < this->fingers.size(); i++) {
 		//int x = this->fingers[i].point.x > 320 ? this->fingers[i].point.x - 320 : -(320 - this->fingers[i].point.x);
 		//int y = this->fingers[i].point.y > 240 ? this->fingers[i].point.y - 240 : -(240 - this->fingers[i].point.y);
-		fingers_points.push_back(Point2d((float)this->fingers[i].point.x, (float)this->fingers[i].point.y));
+		fingers_points.push_back(Point2d((float)this->fingers[i].location.get().x, (float)this->fingers[i].location.get().y));
 	}
 
 	vector<Point> test = vector<Point>();

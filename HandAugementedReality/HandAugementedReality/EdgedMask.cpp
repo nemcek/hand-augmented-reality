@@ -30,8 +30,10 @@ void EdgedMask::create_edges(const Mat& frame, const ColorProfile& color_profile
 	for (const ColorFeature& color_feature : color_profile.color_features) {
 		Mat tmp;
 
-		int h = 0;
-		inRange(frame, Scalar((int)color_feature.min_value[0], (int)color_feature.min_value[1], (int)color_feature.min_value[2]), 
+		int h = (int)color_feature.min_value[0] == 0 ? 10 : (int)color_feature.min_value[0];
+		int s = (int)color_feature.min_value[1] == 0 ? 10 : (int)color_feature.min_value[1];
+		int l = (int)color_feature.min_value[2] == 0 ? 10 : (int)color_feature.min_value[2];
+		inRange(frame, Scalar(h, s, l),
 			Scalar((int)color_feature.max_value[0] + h, (int)color_feature.max_value[1] + h, (int)color_feature.max_value[2] +h), tmp);
 		mask += tmp;
 		//imshow(names[i++], tmp);
@@ -39,7 +41,7 @@ void EdgedMask::create_edges(const Mat& frame, const ColorProfile& color_profile
 
 	medianBlur(mask, mask, 7);
 
-	Mat structElem = getStructuringElement(MorphShapes::MORPH_RECT, Size(7, 7));
+	Mat structElem = getStructuringElement(MorphShapes::MORPH_RECT, Size(11, 11));
 	dilate(mask, mask, structElem);
 	erode(mask, mask, structElem);
 	imshow("threshold", mask);
