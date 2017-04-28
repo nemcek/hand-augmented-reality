@@ -9,8 +9,10 @@ class ColorFeature
 public:
 	Vec3b min_value;
 	Vec3b max_value;
+	Vec3b min_value_portion;
+	Vec3b max_value_portion;
 
-	ColorFeature(const Vec3b& min_val, const Vec3b& max_val);
+	ColorFeature(Vec3b min_val, Vec3b max_val);
 	~ColorFeature();
 };
 

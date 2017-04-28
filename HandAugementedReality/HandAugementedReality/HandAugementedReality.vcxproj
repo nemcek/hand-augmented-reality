@@ -158,6 +158,7 @@
     <ClCompile Include="ColorProfile.cpp" />
     <ClCompile Include="EdgedMask.cpp" />
     <ClCompile Include="Finger.cpp" />
+    <ClCompile Include="Gap.cpp" />
     <ClCompile Include="Hand.cpp" />
     <ClCompile Include="ImageProcessor.cpp" />
     <ClCompile Include="InterestRegion.cpp" />
@@ -170,6 +171,7 @@
     <ClInclude Include="ColorProfile.h" />
     <ClInclude Include="EdgedMask.h" />
     <ClInclude Include="Finger.h" />
+    <ClInclude Include="Gap.h" />
     <ClInclude Include="Hand.h" />
     <ClInclude Include="ImageProcessor.h" />
     <ClInclude Include="InterestRegion.h" />

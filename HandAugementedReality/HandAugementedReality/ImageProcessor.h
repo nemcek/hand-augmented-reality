@@ -5,6 +5,7 @@
 #include "EdgedMask.h"
 #include "Hand.h"
 #include "Finger.h"
+#include "Gap.h"
 
 using namespace cv;
 using namespace std;
@@ -30,6 +31,10 @@ private:
 	ColorProfile color_profile;
 	Ptr<BackgroundSubtractorMOG2> backgroud_substractor;
 	vector<Finger> fingers;
+	Location palm_loc;
+	vector<Gap> gaps;
+	bool gaps_initialized;
+	Hand hand;
 
 	void process_not_initialized();
 	void process_initialized();

@@ -1,10 +1,38 @@
 #include "Hand.h"
 
 
-// haris detector
-// corner detektory
-Hand::Hand(const EdgedMask & edged_mask)
+// Image processor musi obsahovat iba jednu instanciu tejto triedy
+// Trieda si musi udrziavat stavy medzi spracovanymi snimkami
+// Na zaciatku pokus o inicializaciu - najdenie gaps
+// Ak sa nenajdu, bude sa postupne adjustovat color profile - napr. +1 k hornej hranici a -1 k dolej hranici
+// Ak sa najdu presne styri - overenie ci ide o gaps prstov (uz predtym bude vykonana kontrola na uhol)
+// Medzi druhym (ukazov-prostrednik) a stvrtym (prstenik-malicek) bodmi gaps sa prelozi priamka, zisti sa
+// ci bod tretej gap (prostrednik-prsetnik) je v blizkosti
+// AK ano, vieme, ze tieto tri body by mali zodpovedat trom gaps medzi styrmi prstami
+// Ako overit, ci sme nasli spravnu gap pri palci?
+// Prelozit priamku cez gap pri palci a gap pri ukazovaku a s prelozenou priamkou medzi hornymi gaps
+// musi zvierat ± nejaky uhol
+// 
+// Tuto kontrolu vykonavat aj po inicializacii na jednoznacne identifikovanie gaps (uz bez adjsutu color profile)
+// Ak su podmienky splnene, viem ze som nasiel spravne gaps a podla blizkosti nejakeho zvoleneho okolia zistim, ktory gap to je
+// Ak nie su splnene, hladam iba na zaklade vzdialenosti vo zvolenom okoli
+//
+// Identifikovanie stredu dlane:
+// - Prelozit priamku medzi gap pri ukazovaku a gap pri prsteniku
+// - Prelozit rovnobeznu priamku s touto priamkou cez gap pri palci
+// - Prelozit pravouhlu priamku na prvu priamku cez gap pri prostredniku
+// - Pretnutie priamok = stred dlane
+Hand::Hand()
 {
+	this->gaps = vector<Gap>(4);
+	this->gaps_initialized = false;
+}
+
+void Hand::process(const EdgedMask & edged_mask, ColorProfile * color_profile)
+{
+	this->result = Mat::zeros(edged_mask.edges.size(), CV_8UC3);
+	this->defects_points = vector<Point>();
+
 	this->edged_mask = edged_mask;
 	findContours(edged_mask.edges, this->contours, this->hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
 	this->largest_contour_idx = get_largest_contour_idx(this->contours);
@@ -13,8 +41,16 @@ Hand::Hand(const EdgedMask & edged_mask)
 	create_bounding_rect(this->convex_hull_points);
 	create_defects(this->convex_hull_indices);
 	//create_finger_tips(this->convex_hull_points_approxied);
-	create_finger_tips(this->defects);
-	create_palm(this->defects_points);
+	//create_finger_tips(this->defects);
+	//create_palm(this->defects_points);
+
+	if (!this->gaps_initialized) {
+		init_gaps(defects_points, color_profile);
+	}
+	else {
+		find_gaps(defects_points);
+	}
+
 	draw();
 }
 
@@ -69,9 +105,9 @@ void Hand::create_finger_tips(const vector<Point>& points)
 {
 	for (int i = 0; i < points.size(); i++) {
 		// eliminate "finger points" that lay on the bottom of the bounding rect
-		if (points[i].y <= (this->bounding_rect.y + this->bounding_rect.height)
-			&& points[i].y >= (this->bounding_rect.y + this->bounding_rect.height - this->bounding_rect.height / 4))
-			continue;
+		//if (points[i].y <= (this->bounding_rect.y + this->bounding_rect.height)
+		//	&& points[i].y >= (this->bounding_rect.y + this->bounding_rect.height - this->bounding_rect.height / 4))
+		//	continue;
 
 		bool has_near_neighbour = false;
 		for (int j = 0; j < this->finger_tips.size(); j++) {
@@ -104,16 +140,16 @@ void Hand::create_defects(const vector<int>& points_indices)
 void Hand::create_defects_points(const vector<Vec4i>& defects)
 {
 	vector<Vec4i> defs = vector<Vec4i>();
+	this->defects_filtered = vector<Vec4i>();
 
 	for (int i = 0; i < defects.size(); i++) {
 		Point start = this->contours[this->largest_contour_idx][defects[i][0]];
 		Point end = this->contours[this->largest_contour_idx][defects[i][1]];
 		Point farthest = this->contours[this->largest_contour_idx][defects[i][2]];
 		double angle = Utils::angle(start, farthest, end);
-		//if (angle > 0 && angle < 80.0) {
-			//cout << "angle: " << angle << endl;
+		if (angle > 0 && angle < 80.0) {
 			defs.push_back(defects[i]);
-		//}
+		}
 	}
 
 	this->defects = defs;
@@ -149,47 +185,123 @@ void Hand::create_defects_points(const vector<Vec4i>& defects)
 
 		if (!has_near_neighbour) {
 			this->defects_points.push_back(contours[largest_contour_idx][defs[i][2]]);
+			this->defects_filtered.push_back(defs[i]);
 		}
 	}
 }
 
 void Hand::create_palm(const vector<Point>& defects_points)
 {
-	if (defects_points.size() >= 4) {
-		this->palm = minAreaRect(defects_points);
+	/// TODO
+}
+
+void Hand::init_gaps(const vector<Point>& defect_points, ColorProfile * color_profile)
+{
+	if (defects_points.size() < 4) {
+		color_profile->adjust();
+		return;
 	}
 
-	//if (defects_points.size() > 4) {	// elipse needs at least 4 points
-	//	this->palm = fitEllipse(defects_points);
-	//}
+	if (defects_points.size() > 4)
+		return;
+
+	vector<int> x_values = vector<int>();
+	for (const Point & p : defect_points)
+		x_values.push_back(p.x);
+
+	sort(x_values.begin(), x_values.end());
+
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			if (defects_points[j].x == x_values[i]) {
+				this->gaps[i] = Gap(defects_points[j], (GapPosition)i);
+			}
+		}
+	}
+
+	Point2d v = Point2d(gaps[GapPosition::RING_PINKY].location.get().x - gaps[GapPosition::INDEX_MIDDLE].location.get().x,
+		gaps[GapPosition::RING_PINKY].location.get().y - gaps[GapPosition::INDEX_MIDDLE].location.get().y);
+
+	// normilize direction vector
+	double mag = sqrt(v.x*v.x + v.y*v.y);
+	v.x = v.x / mag;
+	v.y = v.y / mag;
+	
+	// rotate 90 degrees
+	double temp = v.x;
+	v.x = -v.y;
+	v.y = temp;
+
+	Point p = Point(gaps[GapPosition::MIDDLE_RING].location.get().x + v.x * 100, gaps[GapPosition::MIDDLE_RING].location.get().y + v.y * 100);
+	line(this->result, gaps[GapPosition::MIDDLE_RING].location.get(), p, Scalar::all(255), 2, 2);
+
+	Point2f intersect;
+	Utils::intersection(gaps[GapPosition::RING_PINKY].location.get(), gaps[GapPosition::INDEX_MIDDLE].location.get(), gaps[GapPosition::MIDDLE_RING].location.get(), p, intersect);
+
+	double dist = Utils::euclidean_distance(intersect, gaps[GapPosition::MIDDLE_RING].location.get());
+	double angle = Utils::angle(gaps[GapPosition::THUMB_INDEX].location.get(), gaps[GapPosition::INDEX_MIDDLE].location.get(), gaps[GapPosition::RING_PINKY].location.get());
+
+	if (dist < 15.0 && angle >= 100.0 && angle <= 140.0) {
+		this->gaps_initialized = true;
+	}
+}
+
+void Hand::find_gaps(const vector<Point>& defect_points)
+{
+	vector<int> assigned_defects_indices = vector<int>();
+	for (int i = 0; i < gaps.size(); i++) {
+		double min_dist = std::numeric_limits<double>::max();
+		int defect_idx = -1;
+
+		for (int j = 0; j < defects_points.size(); j++) {
+			bool is_assigned = false;
+			for (int k = 0; k < assigned_defects_indices.size(); k++) {
+				if (assigned_defects_indices[k] == j) {
+					is_assigned = true;
+					break;
+				}
+			}
+
+			if (is_assigned)
+				continue;
+
+			double dist = Utils::euclidean_distance(gaps[i].location.last(), defects_points[j]);
+			if (dist < min_dist) {
+				min_dist = dist;
+				defect_idx = j;
+			}
+		}
+
+		if (defect_idx != -1 && min_dist <= 30.0) {
+			gaps[i].location.add(defects_points[defect_idx]);
+			assigned_defects_indices.push_back(defect_idx);
+		}
+	}
+
 }
 
 void Hand::draw()
 {
-	this->result = Mat::zeros(edged_mask.edges.size(), CV_8UC3);
-
 	// contours
 	drawContours(this->result, contours, this->largest_contour_idx, Scalar(0, 0, 255), 2, 2, hierarchy);
 
 	vector<vector<Point>> tmp_convex_hull;
 	tmp_convex_hull.push_back(this->convex_hull_points_approxied);	// draw coontours expects two-dimensional array
-	drawContours(this->result, tmp_convex_hull, 0, Scalar(0, 255, 0), 2, 2);
 
-	// finger tips
-	for (int i = 0; i < this->finger_tips.size(); i++) {
-		circle(this->result, this->finger_tips[i], 8, Scalar(0, 0, 255), 5);
-		stringstream ss;
-		ss << i;
-
-		putText(this->result, ss.str(), this->finger_tips[i], FONT_HERSHEY_SIMPLEX, 1, Scalar(255, 0, 0), 2, 2);
+	if (!this->gaps_initialized) {
+		putText(this->result, string("Initializing..."), Point(100, 100), FONT_HERSHEY_SIMPLEX, 1, Scalar::all(255), 2, 2);
+		// defect points
+		for (int i = 0; i < this->defects_points.size(); i++)
+			circle(this->result, this->defects_points[i], 8, Scalar(255, 0, 0), 5);
 	}
-
-	// defect points
-	for (int i = 0; i < this->defects_points.size(); i++)
-		circle(this->result, this->defects_points[i], 8, Scalar(255, 0, 0), 5);
-
-	ellipse(this->result, this->palm, Scalar(255, 0, 0), 2, 2);
-	circle(this->result, this->palm.center, 5, Scalar(255, 0, 0), 2, 2);
+	else {
+		for (Gap & gap : this->gaps) {
+			circle(this->result, gap.location.get(), 8, Scalar(255, 0, 0), 5);
+			stringstream ss;
+			ss << gap.position;
+			putText(this->result, ss.str(), gap.location.get(), FONT_HERSHEY_SIMPLEX, 1, Scalar::all(255), 2, 2);
+		}
+	}
 }
 
 Hand::~Hand()

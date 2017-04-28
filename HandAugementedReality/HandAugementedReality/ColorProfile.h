@@ -17,6 +17,7 @@ public:
 	ColorProfile();
 	ColorProfile(const vector<InterestRegion>& interesting_regions);
 	~ColorProfile();
+	void adjust();
 
 private:
 	void extract_color_profile(const vector<InterestRegion>& interesting_regions);

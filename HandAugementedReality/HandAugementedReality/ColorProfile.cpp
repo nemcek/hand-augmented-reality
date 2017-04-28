@@ -55,6 +55,16 @@ void ColorProfile::extract_color_profile(const vector<InterestRegion>& interesti
 	}
 }
 
+void ColorProfile::adjust()
+{
+	for (int i = 0; i < this->color_features.size(); i++) {
+		for (int j = 0; j < 3; j++) {
+			this->color_features[i].min_value[j] += this->color_features[i].min_value_portion[j];
+			this->color_features[i].max_value[j] += this->color_features[i].max_value_portion[j];
+		}
+	}
+}
+
 ColorProfile::~ColorProfile()
 {
 }

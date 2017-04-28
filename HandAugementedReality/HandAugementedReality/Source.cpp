@@ -14,15 +14,14 @@ void mouse_call_back(int event, int x, int y, int flags, void* userdata) {
 }
 
 int main(int argc, char* argv[]) {
-
 	Mat template_img = imread("C:\\dev\\hand_object_aug_reality\\data\\template.jpg");
 
 	vector<Point> points;
-	points.push_back(Point(199, 281));
+	/*points.push_back(Point(199, 281));
 	points.push_back(Point(302, 115));
 	points.push_back(Point(356, 91));
 	points.push_back(Point(409, 111));
-	points.push_back(Point(462, 169));
+	points.push_back(Point(462, 169));*/
 	points.push_back(Point(274, 327));
 	points.push_back(Point(326, 239));
 	points.push_back(Point(423, 271));
@@ -47,7 +46,7 @@ int main(int argc, char* argv[]) {
 		image_proc.process(img);
 
 		int key = waitKey(30);
-		if (key == 13) {
+		if (key == 32) {
 			image_proc.init();
 		}
 		else if (key == 114) {

@@ -17,12 +17,14 @@ public:
 	Location(const Point & p);
 	void add(Point & p);
 	const Point & get();
+	const Point & last();
 
 	~Location();
 
 private:
 	deque<Point> q;
 	Point avg;
+	Point last_loc;
 
 	void calc_avg();
 	void calc_weighted_mean();

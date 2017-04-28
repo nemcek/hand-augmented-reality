@@ -45,6 +45,9 @@
     <ClCompile Include="Location.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Gap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EdgedMask.h">
@@ -72,6 +75,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Location.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Gap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
