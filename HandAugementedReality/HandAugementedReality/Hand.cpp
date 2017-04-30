@@ -26,6 +26,7 @@ Hand::Hand()
 {
 	this->gaps = vector<Gap>(4);
 	this->gaps_initialized = false;
+	this->palm = Location();
 }
 
 void Hand::process(const EdgedMask & edged_mask, ColorProfile * color_profile)
@@ -40,9 +41,7 @@ void Hand::process(const EdgedMask & edged_mask, ColorProfile * color_profile)
 	create_convex_hull(this->contours[this->largest_contour_idx]);
 	create_bounding_rect(this->convex_hull_points);
 	create_defects(this->convex_hull_indices);
-	//create_finger_tips(this->convex_hull_points_approxied);
-	//create_finger_tips(this->defects);
-	//create_palm(this->defects_points);
+	create_palm(this->defects_points);
 
 	if (!this->gaps_initialized) {
 		init_gaps(defects_points, color_profile);
@@ -192,7 +191,45 @@ void Hand::create_defects_points(const vector<Vec4i>& defects)
 
 void Hand::create_palm(const vector<Point>& defects_points)
 {
-	/// TODO
+	if (!this->gaps_initialized)
+		return;
+
+	Point2d direction_v = Point2d(gaps[GapPosition::RING_PINKY].location.get().x - gaps[GapPosition::INDEX_MIDDLE].location.get().x,
+		gaps[GapPosition::RING_PINKY].location.get().y - gaps[GapPosition::INDEX_MIDDLE].location.get().y);
+
+	// normilize direction vector
+	double mag = sqrt(direction_v.x*direction_v.x + direction_v.y*direction_v.y);
+	direction_v.x = direction_v.x / mag;
+	direction_v.y = direction_v.y / mag;
+
+	// rotate 90 degrees
+	double temp = direction_v.x;
+	direction_v.x = -direction_v.y;
+	direction_v.y = temp;
+
+	Point vertical = Point(gaps[GapPosition::MIDDLE_RING].location.get().x + direction_v.x * 1000, gaps[GapPosition::MIDDLE_RING].location.get().y + direction_v.y * 1000);
+
+	Point2d direction_p = Point2d(gaps[GapPosition::RING_PINKY].location.get().x - gaps[GapPosition::INDEX_MIDDLE].location.get().x,
+		gaps[GapPosition::RING_PINKY].location.get().y - gaps[GapPosition::INDEX_MIDDLE].location.get().y);
+
+	// normilize direction vector
+	mag = sqrt(direction_p.x*direction_p.x + direction_p.y*direction_p.y);
+	direction_p.x = direction_p.x / mag;
+	direction_p.y = direction_p.y / mag;
+
+	Point parallel = Point(gaps[GapPosition::THUMB_INDEX].location.get().x + direction_p.x * 1000, gaps[GapPosition::THUMB_INDEX].location.get().y + direction_p.y * 1000);
+
+	Point2f intersect;
+	Utils::intersection(gaps[GapPosition::MIDDLE_RING].location.get(), vertical, gaps[GapPosition::THUMB_INDEX].location.get(), parallel, intersect);
+
+	// move palm point up the vertical line
+	double dist = Utils::euclidean_distance(gaps[GapPosition::INDEX_MIDDLE].location.get(), gaps[GapPosition::RING_PINKY].location.get());
+	intersect.x -= direction_v.x * (dist / 5.0);
+	intersect.y -= direction_v.y * (dist / 5.0);
+	this->palm.add((Point)intersect);
+
+	/*line(this->result, gaps[GapPosition::MIDDLE_RING].location.get(), vertical, Scalar::all(255), 2, 2);
+	line(this->result, gaps[GapPosition::THUMB_INDEX].location.get(), parallel, Scalar::all(255), 2, 2);*/
 }
 
 void Hand::init_gaps(const vector<Point>& defect_points, ColorProfile * color_profile)
@@ -289,7 +326,7 @@ void Hand::draw()
 	tmp_convex_hull.push_back(this->convex_hull_points_approxied);	// draw coontours expects two-dimensional array
 
 	if (!this->gaps_initialized) {
-		putText(this->result, string("Initializing..."), Point(100, 100), FONT_HERSHEY_SIMPLEX, 1, Scalar::all(255), 2, 2);
+		putText(this->result, string("Initializing..."), Point(50, 50), FONT_HERSHEY_SIMPLEX, 1, Scalar(0, 0, 255), 2, 2);
 		// defect points
 		for (int i = 0; i < this->defects_points.size(); i++)
 			circle(this->result, this->defects_points[i], 8, Scalar(255, 0, 0), 5);
@@ -301,6 +338,15 @@ void Hand::draw()
 			ss << gap.position;
 			putText(this->result, ss.str(), gap.location.get(), FONT_HERSHEY_SIMPLEX, 1, Scalar::all(255), 2, 2);
 		}
+
+		circle(this->result, this->palm.get(), 8, Scalar(255, 0, 0), 2, 2);
+
+	//	line(this->result, this->gaps[GapPosition::INDEX_MIDDLE].location.get(), this->gaps[GapPosition::RING_PINKY].location.get(), Scalar::all(255), 2, 2);
+		//line(this->result, this->gaps[GapPosition::INDEX_MIDDLE].location.get(), this->gaps[GapPosition::THUMB_INDEX].location.get(), Scalar::all(255), 2, 2);
+		//double angle = Utils::angle(this->gaps[GapPosition::THUMB_INDEX].location.get(), this->gaps[GapPosition::INDEX_MIDDLE].location.get(), this->gaps[GapPosition::RING_PINKY].location.get());
+		//stringstream ss;
+		//ss << angle << "°";
+//		putText(this->result, ss.str(), this->gaps[GapPosition::INDEX_MIDDLE].location.get(), FONT_HERSHEY_SIMPLEX, 1, Scalar(0, 255, 0	), 2, 2);
 	}
 }
 

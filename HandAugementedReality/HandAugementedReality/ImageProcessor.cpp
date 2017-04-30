@@ -42,7 +42,9 @@ void ImageProcessor::init()
 
 void ImageProcessor::process_not_initialized()
 {
-	this->result += template_img;
+	//this->result += template_img;
+	stringstream ss;
+	putText(this->result, string("Please cover squares with your hand (palm) and press <space>"), Point(10, 25), FONT_HERSHEY_SIMPLEX, 0.6, Scalar(0, 0, 255), 2, 2);
 	for (int i = 0; i < roi_points.size(); i++) {
 		rectangle(this->result, 
 			Point(roi_points[i].x - this->color_feature_radius, 

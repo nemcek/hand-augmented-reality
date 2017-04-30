@@ -24,10 +24,10 @@ public:
 	vector<Point> defects_points;
 	vector<Gap> gaps;
 	Rect bounding_rect;
-	RotatedRect palm;
-	Location palm_loc;
+	Location palm;
 	int largest_contour_idx;
 	Mat result;
+	bool show_lines = false;
 
 	Hand();
 	~Hand();
