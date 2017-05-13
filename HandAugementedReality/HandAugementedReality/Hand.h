@@ -12,6 +12,15 @@ using namespace std;
 class Hand
 {
 public:
+	Mat result;
+	bool show_lines = false;
+
+	Hand();
+	~Hand();
+	void process(const EdgedMask & edged_mask, ColorProfile * color_profile);
+
+private:
+	bool gaps_initialized;
 	EdgedMask edged_mask;
 	vector<vector<Point>> contours;
 	vector<Vec4i> hierarchy;
@@ -23,18 +32,10 @@ public:
 	vector<Vec4i> defects_filtered;
 	vector<Point> defects_points;
 	vector<Gap> gaps;
+	vector<Point3d> gaps_3d;
 	Rect bounding_rect;
 	Location palm;
 	int largest_contour_idx;
-	Mat result;
-	bool show_lines = false;
-
-	Hand();
-	~Hand();
-	void process(const EdgedMask & edged_mask, ColorProfile * color_profile);
-
-private:
-	bool gaps_initialized;
 
 	int get_largest_contour_idx(const vector<vector<Point>>& contours);
 	void create_bounding_rect(const vector<Point>& points);

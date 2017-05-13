@@ -17,11 +17,6 @@ int main(int argc, char* argv[]) {
 	Mat template_img = imread("C:\\dev\\hand_object_aug_reality\\data\\template.jpg");
 
 	vector<Point> points;
-	/*points.push_back(Point(199, 281));
-	points.push_back(Point(302, 115));
-	points.push_back(Point(356, 91));
-	points.push_back(Point(409, 111));
-	points.push_back(Point(462, 169));*/
 	points.push_back(Point(274, 327));
 	points.push_back(Point(326, 239));
 	points.push_back(Point(423, 271));

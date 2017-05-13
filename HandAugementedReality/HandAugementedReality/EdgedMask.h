@@ -18,6 +18,5 @@ public:
 
 private:
 	void create_edges(const Mat &frame, const ColorProfile& color_profile);
-	void create_corners(const Mat & frame);
 };
 

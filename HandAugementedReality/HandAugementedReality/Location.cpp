@@ -37,18 +37,6 @@ void Location::calc_avg()
 
 void Location::calc_weighted_mean()
 {
-	// weight by age
-	// newest location has heighest weight
-	/*Point sum = Point(0.0, 0.0);
-	int totalWeight = 0;
-
-	for (int i = 0; i < q.size(); i++) {
-		sum += (q[i] * (i + 1));
-		totalWeight += (i + 1);
-	}
-
-	this->avg = Point(sum.x / totalWeight, sum.y / totalWeight);*/
-
 	// newest location has heighest weight (4x) others have the same (1x)
 	Point sum = std::accumulate(q.begin(), q.end(), Point(0.0, 0.0));
 	sum += (q[q.size() - 1] * 3);
