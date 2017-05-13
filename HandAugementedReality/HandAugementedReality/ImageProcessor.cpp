@@ -3,7 +3,7 @@
 
 vector<Point3d> points3d;
 
-ImageProcessor::ImageProcessor(const Mat& template_img, const vector<Point>& points) : template_img(template_img), roi_points(points)
+ImageProcessor::ImageProcessor(const vector<Point>& points) : roi_points(points)
 {
 	this->backgroud_substractor = createBackgroundSubtractorMOG2(500, 16, false);
 }

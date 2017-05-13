@@ -19,7 +19,7 @@ public:
 	Mat result;
 	bool is_initialized = false;
 
-	ImageProcessor(const Mat& template_img, const vector<Point>& points);
+	ImageProcessor(const vector<Point>& points);
 	~ImageProcessor();
 
 	void process(const Mat& frame);
@@ -30,7 +30,6 @@ private:
 	const vector<Point>& roi_points;
 	vector<InterestRegion> rois;
 	Mat frame;
-	const Mat& template_img;
 	ColorProfile color_profile;
 	Ptr<BackgroundSubtractorMOG2> backgroud_substractor;
 	vector<Finger> fingers;

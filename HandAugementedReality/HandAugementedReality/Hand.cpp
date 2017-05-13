@@ -259,7 +259,7 @@ void Hand::init_gaps(const vector<Point>& defect_points, ColorProfile * color_pr
 	// Calculate point which lies on hypotethical line vertical to direction vector and crosses middle-ring gap
 	Point p = Point(gaps[GapPosition::MIDDLE_RING].location.get().x + v.x * 100, gaps[GapPosition::MIDDLE_RING].location.get().y + v.y * 100);
 
-	// Calculate interset point of hypotethilcal line and line between ring0pinky gap and index-middle gap
+	// Calculate intersect point of hypotethical line and line between ring0pinky gap and index-middle gap
 	Point2f intersect;
 	Utils::intersection(gaps[GapPosition::RING_PINKY].location.get(), gaps[GapPosition::INDEX_MIDDLE].location.get(), gaps[GapPosition::MIDDLE_RING].location.get(), p, intersect);
 
