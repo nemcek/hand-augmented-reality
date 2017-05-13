@@ -10,6 +10,11 @@ using namespace cv;
 const int MAX_SIZE = 10;
 const bool USE_WIGHTED_MEAN = true;
 
+/*
+ * Location of points
+ * Using history
+ * History implemented using queue
+ */
 class Location
 {
 public:

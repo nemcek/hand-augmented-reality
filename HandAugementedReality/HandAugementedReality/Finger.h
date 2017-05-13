@@ -14,6 +14,9 @@ enum FingerType {
 	PINKY = 4
 };
 
+/*
+ * Finger of hand eextracted from image
+ */
 class Finger
 {
 public:

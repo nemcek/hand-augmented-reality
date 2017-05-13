@@ -9,6 +9,10 @@
 using namespace cv;
 using namespace std;
 
+/*
+ * Hand extracted from image
+ * Consists mainly from finger gaps and palm
+ */
 class Hand
 {
 public:

@@ -10,6 +10,9 @@
 using namespace cv;
 using namespace std;
 
+/*
+ * Class for processing images
+ */
 class ImageProcessor
 {
 public:

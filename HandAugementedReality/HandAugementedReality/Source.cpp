@@ -16,6 +16,7 @@ void mouse_call_back(int event, int x, int y, int flags, void* userdata) {
 int main(int argc, char* argv[]) {
 	Mat template_img = imread("C:\\dev\\hand_object_aug_reality\\data\\template.jpg");
 
+	// Region of interest points for color profile extraction
 	vector<Point> points;
 	points.push_back(Point(274, 327));
 	points.push_back(Point(326, 239));

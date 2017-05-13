@@ -4,6 +4,10 @@
 
 using namespace cv;
 
+/*
+ * Color feature as part of color profile of image
+ * Contains extracted color value and it's proportion
+ */
 class ColorFeature
 {
 public:

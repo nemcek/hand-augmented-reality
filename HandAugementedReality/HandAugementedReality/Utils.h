@@ -8,6 +8,9 @@
 using namespace cv;
 using namespace std;
 
+/*
+ * Utility functions
+ */
 class Utils
 {
 public:

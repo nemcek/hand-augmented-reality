@@ -5,6 +5,9 @@
 using namespace cv;
 using namespace std;
 
+/*
+ * Implementation of region of interest
+ */
 class InterestRegion
 {
 public:

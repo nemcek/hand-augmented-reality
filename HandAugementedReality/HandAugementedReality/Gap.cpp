@@ -12,7 +12,6 @@ Gap::Gap(const Point & p, GapPosition position) : position(position)
 	this->location = Location(p);
 }
 
-
 Gap::~Gap()
 {
 }

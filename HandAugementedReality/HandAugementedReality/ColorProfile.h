@@ -9,6 +9,10 @@
 using namespace cv;
 using namespace std;
 
+/*
+ * Color profile of image
+ * Consists of multiple color features extracted by region of interest
+ */
 class ColorProfile
 {
 public:

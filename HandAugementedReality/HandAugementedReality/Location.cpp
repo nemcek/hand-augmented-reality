@@ -15,18 +15,22 @@ Location::Location(const Point & p)
 	push(p);
 }
 
+// Add new location
 void Location::add(Point & p)
 {
+	// do not add location which is too far away
 	if (Utils::euclidean_distance(this->avg, p) > 50 && this->q.size() > 1) {
 		return;
 	}
 
+	// if queue is full pop
 	if (q.size() == MAX_SIZE)
 		pop();
 
 	push(p);
 }
 
+// Calculates average location
 void Location::calc_avg()
 {
 	if (USE_WIGHTED_MEAN)
@@ -35,6 +39,7 @@ void Location::calc_avg()
 		calc_arithmetic_mean();
 }
 
+// Calculates weighted mean
 void Location::calc_weighted_mean()
 {
 	// newest location has heighest weight (4x) others have the same (1x)
@@ -44,6 +49,7 @@ void Location::calc_weighted_mean()
 	this->avg = Point(sum.x / (q.size() + 3), sum.y / (q.size() + 3));
 }
 
+// Calculates arithemetic mean
 void Location::calc_arithmetic_mean()
 {
 	Point sum = std::accumulate(q.begin(), q.end(), Point(0.0, 0.0));

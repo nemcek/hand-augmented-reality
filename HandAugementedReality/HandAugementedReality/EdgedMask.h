@@ -6,6 +6,9 @@
 using namespace cv;
 using namespace std;
 
+/*
+ * Edge mask of image
+ */
 class EdgedMask
 {
 public:

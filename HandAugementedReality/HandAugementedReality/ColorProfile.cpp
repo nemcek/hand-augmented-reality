@@ -10,6 +10,8 @@ ColorProfile::ColorProfile(const vector<InterestRegion>& interesting_regions)
 	extract_color_profile(interesting_regions);
 }
 
+/// Extracts color profile from picture
+/// Positions to extract color from are deefined by regions of interest
 void ColorProfile::extract_color_profile(const vector<InterestRegion>& interesting_regions)
 {
 	this->color_features = vector<ColorFeature>();
@@ -55,6 +57,9 @@ void ColorProfile::extract_color_profile(const vector<InterestRegion>& interesti
 	}
 }
 
+/// Adjusts color profile
+/// Increments each channel value of color profile by it's proportion part
+/// Used for auto adjusting when initializing by finding finger gaps
 void ColorProfile::adjust()
 {
 	for (int i = 0; i < this->color_features.size(); i++) {

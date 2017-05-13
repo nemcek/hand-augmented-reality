@@ -9,6 +9,9 @@ enum GapPosition {
 	RING_PINKY = 3
 };
 
+/*
+ * Gap between fingers
+ */
 class Gap
 {
 public:

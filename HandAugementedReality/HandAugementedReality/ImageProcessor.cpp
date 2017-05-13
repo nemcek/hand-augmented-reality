@@ -25,6 +25,7 @@ void ImageProcessor::process(const Mat & frame)
 		process_not_initialized();
 }
 
+// Inits the image processing
 void ImageProcessor::init()
 {
 	for (const Point& p : this->roi_points) {
@@ -40,9 +41,9 @@ void ImageProcessor::init()
 	this->is_initialized = true;
 }
 
+// Processes not started processing
 void ImageProcessor::process_not_initialized()
 {
-	//this->result += template_img;
 	stringstream ss;
 	putText(this->result, string("Please cover squares with your hand (palm) and press <space>"), Point(10, 25), FONT_HERSHEY_SIMPLEX, 0.6, Scalar(0, 0, 255), 2, 2);
 	for (int i = 0; i < roi_points.size(); i++) {
@@ -55,21 +56,25 @@ void ImageProcessor::process_not_initialized()
 	}
 }
 
+/// Extrracts foreground to eliminate noise in background
 void ImageProcessor::extract_foreground()
 {
 	Mat foreground;
 	this->backgroud_substractor->apply(this->frame, foreground);
 
+	// take non zero points and calculate bounding rectangle from it
 	Mat nonzero_points;
 	medianBlur(foreground, foreground, 7);
 	findNonZero(foreground, nonzero_points);
 	Rect rect = boundingRect(nonzero_points);
 
+	// extract part of image covered by bounding rectangle
 	Mat tmp = Mat::zeros(this->frame.size(), CV_8UC3);
 	this->frame(rect).copyTo(tmp(rect));
 	this->frame = tmp;
 }
 
+// Process started processing
 void ImageProcessor::process_initialized()
 {
 	blur(this->frame, this->frame, Size(3, 3));

@@ -13,6 +13,7 @@ Finger::Finger(const Point& finger_tip_point, FingerType type)
 	this->type = type;
 }
 
+/// Extracts finger from image by defined finger's region of interest
 void Finger::extract(const Mat & frame)
 {
 	this->roi_data = frame(this->roi);
